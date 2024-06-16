@@ -1,15 +1,8 @@
 import os
-from typing import Optional, Union, List
-from datetime import datetime
 import sqlalchemy as sa
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import UserMixin
-from flask import url_for
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, ForeignKey, DateTime, Text, Integer, MetaData
-from uuid import uuid4
 
 db = SQLAlchemy()
 
