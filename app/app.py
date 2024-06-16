@@ -16,18 +16,17 @@ init_login_manager(app)
 app.register_blueprint(auth_bp)
 app.register_blueprint(books_bp)
 
+application = app
 
 @app.route('/')
 def index():
     genres = Genre.query.all()
     return render_template('index.html', genres=genres)
 
-
 @app.route('/images/<image_id>')
 def image(image_id):
     img = db.get_or_404(Cover, image_id)
     return send_from_directory(app.config['UPLOAD_FOLDER'], img.storage_filename)
-
 
 if __name__ == '__main__':
     with app.app_context():
