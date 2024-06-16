@@ -2,9 +2,9 @@
 
 {% block content %}
     <div class="container mb-3">
-        <h2 class="my-3 text-center text-uppercase font-weight-bold">Создание книги</h2>
+        <h2 class="my-3 text-center text-uppercase font-weight-bold">Редактирование книги</h2>
 
-        <form method="POST" action="{{ url_for('books.create') }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ url_for('books.update', book_id=book.id) }}" enctype="multipart/form-data">
             <input type="hidden" name="rating_count" value="{{ 0 }}">
             <input type="hidden" name="rating_sum" value="{{ 0 }}">
             <div class="mb-3 row">
@@ -33,7 +33,7 @@
                         <label for="genres">Жанры</label>
                         <select class="form-select" id="book-genre" name="genre_ids" title="Жанр книги" multiple>
                             {% for genre in genres %}
-                                <option value="{{ genre.id }}" {% if genre.id | string in request.args.getlist('genre_ids') %}selected{% endif %}>{{ genre.name }}</option>
+                                <option value="{{ genre.id }}" {% if genre in book.genres %}selected{% endif %}>{{ genre.name }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -43,20 +43,15 @@
                     </div>
                 </div>
                 <div class="col-md-6 d-flex flex-column">
-                    <div class="mb-3">
-                        <label for="cover">Обложка</label>
-                        <input class="form-control" type="file" name="cover_img" id="cover_img" accept="image/*">
-                    </div>
-                    <div class="mb-3 background-preview p-3 rounded d-flex align-items-center justify-content-center">
-                        <img src="#" class="img-fluid" alt="">
-                        <label for="cover_img" class="btn btn-dark">Выбрать изображение</label>
+                    <div class="mb-3 background-preview rounded d-flex align-items-center justify-content-center">
+                        <img src="{{ url_for('image', image_id=book.cover_id) }}" class="img-fluid" alt="">
                     </div>
                 </div>
             </div>
 
             <div class="text-center">
                 <a class="btn btn-secondary me-3" href="{{ url_for('books.index') }}">Назад</a>
-                <button type="submit" class="btn btn-dark">Создать книгу</button>
+                <button type="submit" class="btn btn-dark">Изменить книгу</button>
             </div>
         </form>
     </div>

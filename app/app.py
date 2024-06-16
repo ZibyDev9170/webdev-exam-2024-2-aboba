@@ -26,7 +26,7 @@ def index():
 @app.route('/images/<image_id>')
 def image(image_id):
     img = db.get_or_404(Cover, image_id)
-    return send_from_directory(app.config['UPLOAD_FOLDER'], img.filename)
+    return send_from_directory(app.config['UPLOAD_FOLDER'], img.storage_filename)
 
 
 if __name__ == '__main__':

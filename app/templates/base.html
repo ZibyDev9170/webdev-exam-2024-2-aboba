@@ -16,23 +16,15 @@
         <nav class="navbar navbar-dark bg-dark">
             <div class="container-fluid">
                 <div class="logo navbar-brand">
-                    <a href="{{ url_for('index') }}">
-                        <img class="img-fluid" src="{{ url_for('static', filename='images/polytech_logo.png') }}" alt="polytech-logo">
+                    <a href="{{ url_for('index') }}" class=" text-white">
+                        <!-- <img class="img-fluid" src="{{ url_for('static', filename='images/polytech_logo.png') }}" alt="polytech-logo"> -->
+                        Электронная библиотека
                     </a>
                 </div>
                 {% if current_user.is_authenticated %}
-                    <div class="dropdown d-flex" style="width: 200px;">
-                        <div class="profile ms-auto" title="{{ current_user.full_name }}" id="dropdownMenuButton" data-bs-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false">
-                            <img class="img-fluid rounded-circle cursor-pointer"
-                                src="{{ url_for('static', filename='images/default-profile-picture-300x300.jpeg') }}" alt="profile-pic">
-                        </div>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <a class="dropdown-item" href="#">Профиль</a>
-                            <a class="dropdown-item" href="#">Книги</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="{{ url_for('auth.logout') }}">Выйти</a>
-                        </div>
+                    <div class="d-flex">
+                        <a class="btn btn-outline-light me-2" href="{{ url_for('books.index') }}">Книги</a>
+                        <a class="btn btn-outline-light" href="{{ url_for('auth.logout') }}">Выйти</a>
                     </div>
                 {% else %}
                     <a class="btn btn-outline-light" href="{{ url_for('auth.login') }}">Войти</a>

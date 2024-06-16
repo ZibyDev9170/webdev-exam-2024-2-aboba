@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-3 text-center text-uppercase font-weight-bold">Изменить рецензию</h2>
+    <form method="post">
+        <div class="form-group">
+            <label for="rating">Оценка</label>
+            <select class="form-control" id="rating" name="rating">
+                <option value="5" {% if review.rating == 5 %}selected{% endif %}>Отлично</option>
+                <option value="4" {% if review.rating == 4 %}selected{% endif %}>Хорошо</option>
+                <option value="3" {% if review.rating == 3 %}selected{% endif %}>Удовлетворительно</option>
+                <option value="2" {% if review.rating == 2 %}selected{% endif %}>Неудовлетворительно</option>
+                <option value="1" {% if review.rating == 1 %}selected{% endif %}>Плохо</option>
+                <option value="0" {% if review.rating == 0 %}selected{% endif %}>Ужасно</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="text">Текст рецензии</label>
+            <textarea class="form-control" id="text" name="text" rows="5">{{ review.text }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+    </form>
+</div>
+{% endblock %}

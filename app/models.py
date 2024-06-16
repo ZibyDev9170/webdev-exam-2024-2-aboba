@@ -19,6 +19,10 @@ class Cover(db.Model):
     mime_type = db.Column(db.String, nullable=False)
     md5_hash = db.Column(db.String, nullable=False)
 
+    @property
+    def storage_filename(self):
+        return str(self.id) + os.path.splitext(self.filename)[-1]
+
 class Genre(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True, nullable=False)
@@ -53,7 +57,7 @@ class Role(db.Model):
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.Text, nullable=False)
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, nullable=False)
     password_hash = db.Column(db.String, nullable=False)

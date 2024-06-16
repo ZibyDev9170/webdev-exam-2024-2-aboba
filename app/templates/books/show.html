@@ -1,32 +1,128 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="title-area position-relative" style="background-image: url({{ url_for('image', image_id=book.cover_id) }});">
-    <div class="h-100 w-100 py-5 d-flex text-center position-absolute" style="background-color: rgba(0, 0, 0, 0.65);">
+<div class="position-relative">
+    <div class="book-logo-big img-fluid img-thumbnail mx-auto d-block mt-3" style="background-image: url({{ url_for('image', image_id=book.cover_id) }});">
+    </div>
+    <div class="h-100 w-100 py-5 d-flex text-center">
         <div class="m-auto">
             <h1 class="title mb-3 font-weight-bold">{{ book.title }}</h1>
             <p class="mb-3 mx-auto">
                 {{ book.genres | map(attribute='name') | join(', ') }} | <span>★</span> <span>{{ "%.2f" | format(book.rating) }}</span>
             </p>
-            <div class="container">
-                <p class="description w-75 mb-5 mx-auto">
-                    {{ book.description }}
-                </p>
-            </div>
-            {% if current_user.is_authenticated %}
-                <a href="#" class="btn btn-outline-light btn-lg">Перейти к материалам книги</a>
-            {% else %}
-                <button class="btn btn-outline-light btn-lg" disabled>Записаться</button>
-            {% endif %}
+            <p class="mb-3 mx-auto">Автор: {{ book.author }}</p>
+            <p class="mb-3 mx-auto">Издательство: {{ book.publisher }}</p>
+            <p class="mb-3 mx-auto">Количество страниц: {{ book.pages }}</p>
         </div>
     </div>
 </div>
 
-<div class="container mt-5">
+<div class="container mt-3">
     <section class="about mb-5">
         <h2 class="mb-3 text-center text-uppercase font-weight-bold">О книге</h2>
-        <p>{{ book.description }}</p>
+        <p class="mb-3 text-center">{{ book.description }}</p>
     </section>
+
+    {% if current_user.is_authenticated %}
+        {% if user_review %}
+        <h2 class="mb-3 text-center text-uppercase font-weight-bold">Ваша рецензия</h2>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4 mx-auto">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title text-center">Оценка: {{ user_review.rating }}</h5>
+                                <p class="card-text">{{ user_review.text | safe }}</p>
+                                <p class="text-right"><small>Автор: {{ user_review.user.username }}</small></p>
+                                <div class="text-center">
+                                    <a href="{{ url_for('books.edit_review', book_id=book.id, review_id=user_review.id) }}" class="btn btn-secondary">Изменить</a>
+                                    <button type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#delete-modal" data-delete-url="{{ url_for('books.delete_review', book_id=book.id, review_id=user_review.id) }}">Удалить</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+
+    <section class="reviews mb-5">
+        <h2 class="mb-3 text-center text-uppercase font-weight-bold">Рецензии</h2>
+        <div class="row">
+            {% for review in reviews %}
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">Оценка: {{ review.rating }}</h5>
+                            <p class="card-text">{{ review.text | safe }}</p>
+                            <p class="text-right"><small>Автор: {{ review.user.username }}</small></p>
+                            {% if current_user.is_authenticated and current_user.role_id in [1, 2] %}
+                                <div class="text-center">
+                                    <a href="{{ url_for('books.edit_review', book_id=book.id, review_id=review.id) }}" class="btn btn-secondary">Изменить</a>
+                                    {% if current_user.is_authenticated and current_user.role_id in [1, 2] %}
+                                        <button type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#delete-modal" data-delete-url="{{ url_for('books.delete_review', book_id=book.id, review_id=review.id) }}">Удалить</button>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if pagination.pages > 1 %}
+            <nav aria-label="Pagination">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('books.show', book_id=book.id, page=pagination.prev_num) }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% for page in pagination.iter_pages() %}
+                        {% if page %}
+                            <li class="page-item {% if page == pagination.page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('books.show', book_id=book.id, page=page) }}">
+                                    {{ page }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('books.show', book_id=book.id, page=pagination.next_num) }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        {% endif %}
+    </section>
+
+    {% if current_user.is_authenticated %}
+        {% if not user_review %}
+            <div class="text-center mb-3">
+                <a href="{{ url_for('books.review', book_id=book.id) }}" class="btn btn-dark">Написать рецензию</a>
+            </div>
+        {% endif %}
+    {% endif %}
 </div>
 
+<div class="modal" id="delete-modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Удаление рецензии</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить рецензию?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
+                <form action="" method="post">
+                    <button type="submit" class="btn btn-danger">Да</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
