@@ -7,6 +7,7 @@ from hashlib import md5
 from werkzeug.utils import secure_filename
 from markupsafe import Markup, escape
 import markdown2
+import bleach
 
 
 books_bp = Blueprint('books', __name__, url_prefix='/books')
@@ -82,6 +83,8 @@ def create():
         book_params = params()
         if cover:
             book_params['cover_id'] = cover.id
+        sanitized_text = bleach.clean(book_params['description'])
+        book_params['description'] = markdown2.markdown(sanitized_text)
         book = Book(**book_params)
         db.session.add(book)
         db.session.commit()
@@ -122,7 +125,8 @@ def update(book_id):
             if item == None:
                 raise IntegrityError
         book.title = params_['title']
-        book.description = params_['description']
+        sanitized_text = bleach.clean(params_['description'])
+        book.description = markdown2.markdown(sanitized_text)
         book.year = params_['year']
         book.publisher = params_['publisher']
         book.author = params_['author']
@@ -194,7 +198,7 @@ def review(book_id):
             flash('Все поля обязательны для заполнения.', 'danger')
             return render_template('books/review.html', book=book)
 
-        sanitized_text = Markup(escape(text)).unescape()
+        sanitized_text = bleach.clean(text)
         html_text = markdown2.markdown(sanitized_text)
         review = Review(book_id=book_id, user_id=current_user.id, rating=rating, text=html_text)
         db.session.add(review)
@@ -220,7 +224,8 @@ def edit_review(book_id, review_id):
     if request.method == 'POST':
         review.rating = request.form.get('rating')
         text = request.form.get('text')
-        html_text = markdown2.markdown(Markup(escape(text)).unescape())
+        sanitized_text = bleach.clean(text)
+        html_text = markdown2.markdown(sanitized_text)
         review.text = html_text
         db.session.commit()
         flash('Ваша рецензия была успешно обновлена!', 'success')
