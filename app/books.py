@@ -195,7 +195,8 @@ def review(book_id):
             return render_template('books/review.html', book=book)
 
         sanitized_text = Markup(escape(text)).unescape()
-        review = Review(book_id=book_id, user_id=current_user.id, rating=rating, text=sanitized_text)
+        html_text = markdown2.markdown(sanitized_text)
+        review = Review(book_id=book_id, user_id=current_user.id, rating=rating, text=html_text)
         db.session.add(review)
         db.session.commit()
         
@@ -218,7 +219,9 @@ def edit_review(book_id, review_id):
 
     if request.method == 'POST':
         review.rating = request.form.get('rating')
-        review.text = Markup(escape(request.form.get('text'))).unescape()
+        text = request.form.get('text')
+        html_text = markdown2.markdown(Markup(escape(text)).unescape())
+        review.text = html_text
         db.session.commit()
         flash('Ваша рецензия была успешно обновлена!', 'success')
         return redirect(url_for('books.show', book_id=book_id))
